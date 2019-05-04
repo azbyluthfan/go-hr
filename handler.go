@@ -14,6 +14,9 @@ type Service struct {
 	EmployeeUseCase employeeUseCase.EmployeeUseCase
 }
 
+// Create Service instance
+// Service requires Usecase, and Usecase requires Query
+// Create DB connection for Query
 func MakeHandler() *Service {
 
 	// create db connection
@@ -51,6 +54,7 @@ func MakeHandler() *Service {
 	}
 }
 
+// Create a database connection
 func ConnectDb() (*sqlx.DB, error) {
 
 	db, err := sqlx.Connect("mysql", os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/" + os.Getenv("DB_NAME"))

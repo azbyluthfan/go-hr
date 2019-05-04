@@ -11,6 +11,7 @@ const (
 	defaultPort = "9000"
 )
 
+// Serve HTTP request
 func (s *Service) HttpServe() {
 	router := gin.New()
 
@@ -22,10 +23,10 @@ func (s *Service) HttpServe() {
 	employeeHandler := employeePresenter.NewEmployeeHttpHandler(s.EmployeeUseCase)
 
 	authGroup := router.Group("/auth")
-	employeeHandler.MountAuth(authGroup)
+	employeeHandler.Mount(authGroup)
 
 	employeeGroup := router.Group("/employee")
-	employeeHandler.Mount(employeeGroup)
+	employeeHandler.MountAuth(employeeGroup)
 
 	_ = router.Run(":" + port)
 }

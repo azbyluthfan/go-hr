@@ -16,12 +16,15 @@ type employeeUseCaseImpl struct {
 	employeeQuery query.EmployeeQuery
 }
 
+// Create a EmployeeUseCase instance
 func NewEmployeeUseCase(eq query.EmployeeQuery) EmployeeUseCase {
 	return &employeeUseCaseImpl{
 		employeeQuery: eq,
 	}
 }
 
+// Login for specified employee.
+// Create an AccessToken if password is verified.
 func (impl *employeeUseCaseImpl) Login(c context.Context, companyId, employeeNo, password, secretKey string) (*model.AuthResponse, error) {
 
 	employee, err := impl.employeeQuery.VerifyPassword(companyId, employeeNo, password)
@@ -58,6 +61,7 @@ func (impl *employeeUseCaseImpl) Login(c context.Context, companyId, employeeNo,
 	}, nil
 }
 
+// Return hello message for logged in employee
 func (impl *employeeUseCaseImpl) Hello(c context.Context) (string, error) {
 	employeeNo := c.Value("employeeNo")
 	if employeeNo == nil {
@@ -67,6 +71,7 @@ func (impl *employeeUseCaseImpl) Hello(c context.Context) (string, error) {
 	return "Hello, " + employeeNo.(string) + "!", nil
 }
 
+// Check if logged in user can create notice for selected employee
 func (impl *employeeUseCaseImpl) CanCreateNotice(
 	c context.Context,
 	companyId, employeeNo string) error {
@@ -84,6 +89,8 @@ func (impl *employeeUseCaseImpl) CanCreateNotice(
 	return nil
 }
 
+
+// Create notice for a Employee
 func (impl *employeeUseCaseImpl) CreateNotice(
 	c context.Context,
 	companyId, employeeNo string,
@@ -94,6 +101,7 @@ func (impl *employeeUseCaseImpl) CreateNotice(
 	return impl.employeeQuery.CreateNotice(companyId, employeeNo, noticeType, visibility, periodStart, periodEnd)
 }
 
+// Get list of Notice from employee of selected company
 func (impl *employeeUseCaseImpl) GetCompanyNotice(c context.Context, companyId string) ([]*model.Notice, error) {
 
 	if c.Value("companyId") == nil || c.Value("role") == nil {
@@ -105,6 +113,7 @@ func (impl *employeeUseCaseImpl) GetCompanyNotice(c context.Context, companyId s
 	return impl.employeeQuery.GetCompanyNotice(c.Value("companyId").(string), enum.PUBLIC.String())
 }
 
+// Get list of Notice from logged in user
 func (impl *employeeUseCaseImpl) GetNotice(c context.Context) ([]*model.Notice, error) {
 
 	if c.Value("employeeId") == nil {

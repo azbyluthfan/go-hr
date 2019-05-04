@@ -13,12 +13,15 @@ type employeeQueryMysql struct {
 	db *sqlx.DB
 }
 
+// Creates a employeeQueryMysql instance
 func NewEmployeeQueryMysql(db *sqlx.DB) *employeeQueryMysql {
 	return &employeeQueryMysql{
 		db: db,
 	}
 }
 
+// Get employee by companyId and employeeNo
+// Returns error when selected employee is not found
 func (q *employeeQueryMysql) GetEmployeeByEmployeeNo(companyId, employeeNo string) (*model.Employee, error) {
 	employee := model.Employee{}
 
@@ -32,6 +35,8 @@ func (q *employeeQueryMysql) GetEmployeeByEmployeeNo(companyId, employeeNo strin
 	return &employee, nil
 }
 
+// Record failed login and count its occurence
+// Jail for 15 minutes after failed to login 3 times
 func (q *employeeQueryMysql) FailedLogin(employeeId string, failedLogin int) error {
 
 	query := `UPDATE employees SET failed_login_count=?`
@@ -54,6 +59,9 @@ func (q *employeeQueryMysql) FailedLogin(employeeId string, failedLogin int) err
 	return nil
 }
 
+// Verify password for specified employee
+// Check if employee account is locked (jailed until jail time expires) and returns error if it does
+// Return Employee object when found and password is correct
 func (q *employeeQueryMysql) VerifyPassword(companyId, employeeNo, password string) (*model.Employee, error) {
 	employee, err := q.GetEmployeeByEmployeeNo(companyId, employeeNo)
 	if err != nil {
@@ -89,6 +97,7 @@ func (q *employeeQueryMysql) VerifyPassword(companyId, employeeNo, password stri
 	return employee, nil
 }
 
+// Check if notice is available for selected time period for certain employee
 func (q * employeeQueryMysql) NoticeAvailable(employeeID string, periodStart, periodEnd time.Time) (bool, error) {
 
 	var count int
@@ -109,6 +118,8 @@ func (q * employeeQueryMysql) NoticeAvailable(employeeID string, periodStart, pe
 	return true, nil
 }
 
+// Create notice for an employee.
+// Can not create notice if there is an overlapping notice for selected period.
 func (q *employeeQueryMysql) CreateNotice(
 	companyId, employeeNo string,
 	noticeType enum.NoticeType,
@@ -140,6 +151,7 @@ func (q *employeeQueryMysql) CreateNotice(
 	return nil
 }
 
+// Get list of Notice for selected employee
 func (q *employeeQueryMysql) GetNotice(employeeId string) ([]*model.Notice, error) {
 	notices := []*model.Notice{}
 	err := q.db.Select(&notices, `SELECT * FROM notices WHERE employee_id=? ORDER BY period_end DESC`, employeeId)
@@ -150,6 +162,8 @@ func (q *employeeQueryMysql) GetNotice(employeeId string) ([]*model.Notice, erro
 	return notices, nil
 }
 
+// Get list of Notice for employees from selected company
+// Filter by visibility
 func (q *employeeQueryMysql) GetCompanyNotice(companyId, visibility string) ([]*model.Notice, error) {
 	notices := []*model.Notice{}
 	query := `

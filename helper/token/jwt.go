@@ -40,16 +40,16 @@ type AccessTokenGenerator interface {
 	GenerateAccessToken(cl BearerClaims) <-chan AccessTokenResponse
 }
 
-// NewJwtGenerator function for initializing jwtGenerator object
+// Generate AccessTokenGenerator object
 func NewJwtGenerator(secret string, tokenAge, refreshTokenAge time.Duration) AccessTokenGenerator {
 	return &jwtGenerator{
-		secret:				secret,
-		tokenAge:	        tokenAge,
-		refreshTokenAge: 	refreshTokenAge,
+		secret: secret,
+		tokenAge: tokenAge,
+		refreshTokenAge: refreshTokenAge,
 	}
 }
 
-// GenerateAccessToken function for generating access token
+// Generate access token from BearerClaims
 func (j *jwtGenerator) GenerateAccessToken(cl BearerClaims) <-chan AccessTokenResponse {
 	result := make(chan AccessTokenResponse)
 	go func() {

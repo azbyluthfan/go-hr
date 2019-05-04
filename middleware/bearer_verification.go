@@ -7,7 +7,8 @@ import (
 	"net/http"
 )
 
-// BearerVerify function to verify token
+// Verify access token and check if claim is valid or not
+// Pass parsed claims into context
 func BearerVerify(secret string) gin.HandlerFunc {
 	return func (c *gin.Context) {
 		req, err := request.ParseFromRequest(c.Request, request.OAuth2Extractor, func(token *jwt.Token) (interface{}, error) {

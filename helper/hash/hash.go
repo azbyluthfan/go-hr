@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+// Decode base64 password and extract hashed password and salt
+// Password is stored with following algorithm: hex64(sha256({password}.{salt})=)
 func DecodeHashedPassword(hashed string) (hashedPassword string, salt string, err error) {
 	decoded, err := b64.StdEncoding.DecodeString(hashed)
 	if err != nil {
@@ -25,6 +27,7 @@ func DecodeHashedPassword(hashed string) (hashedPassword string, salt string, er
 	return str[0], str[1], nil
 }
 
+// Encrypt password with salt
 func HashPasswordWithSalt(password, salt string) string {
 	hashed := sha256.New()
 	hashed.Write([]byte(password + "." + salt))

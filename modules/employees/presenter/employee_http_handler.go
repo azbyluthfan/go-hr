@@ -24,7 +24,8 @@ func NewEmployeeHttpHandler(employeeUseCase usecase.EmployeeUseCase) *employeeHt
 	}
 }
 
-func (h *employeeHttpHandler) Mount(group *gin.RouterGroup) {
+// Mount handler to routes with authentication
+func (h *employeeHttpHandler) MountAuth(group *gin.RouterGroup) {
 	group.Use(middleware.BearerVerify(secretKey))
 	{
 		group.GET("/hello", h.Hello)
@@ -34,10 +35,13 @@ func (h *employeeHttpHandler) Mount(group *gin.RouterGroup) {
 	}
 }
 
-func (h *employeeHttpHandler) MountAuth(group *gin.RouterGroup) {
+// Mount handler to routes without auth
+func (h *employeeHttpHandler) Mount(group *gin.RouterGroup) {
 	group.POST("/login", h.Login)
 }
 
+// Logic route handler
+// Validate body json parameter and returns AccessToken in AuthResponse
 func (h *employeeHttpHandler) Login(c *gin.Context) {
 
 	var param model.LoginParam
@@ -55,6 +59,8 @@ func (h *employeeHttpHandler) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, authResponse)
 }
 
+// Hello route handler
+// Print hello and logged in employeeNo
 func (h *employeeHttpHandler) Hello(c *gin.Context) {
 	msg, err := h.employeeUseCase.Hello(c)
 	if err != nil {
@@ -64,6 +70,9 @@ func (h *employeeHttpHandler) Hello(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": msg})
 }
 
+// Create notice route handler
+// Validate create notice parameter from body json and create notice
+// Check if logged in user can create notice with specified parameter
 func (h *employeeHttpHandler) CreateNotice(c *gin.Context) {
 
 	var param model.CreateNoticeParam
@@ -100,6 +109,9 @@ func (h *employeeHttpHandler) CreateNotice(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "Notice created"})
 }
 
+// Get company notice route handler
+// Get list of notices from employee in specified company
+// Parse companyId from query string
 func (h *employeeHttpHandler) GetCompanyNotice(c *gin.Context) {
 
 	companyId := c.Query("companyId")
@@ -117,6 +129,8 @@ func (h *employeeHttpHandler) GetCompanyNotice(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": notices})
 }
 
+// Get own notice route handler
+// Return logged in user list of notices
 func (h *employeeHttpHandler) GetOwnNotice(c *gin.Context) {
 
 	notices, err := h.employeeUseCase.GetNotice(c)
