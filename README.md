@@ -5,7 +5,7 @@ Simple employee notice API
 `go test ./... -cover | grep -v mocks`
 
 ### How to run
-`docker-compose up`
+`docker-compose -f docker/docker-compose.yaml up`
 
 If you need to change default ports, update ports and environment variables specified in `docker/docker-compose.yaml`
 
